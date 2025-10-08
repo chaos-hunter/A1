@@ -1,0 +1,43 @@
+CC = gcc
+CFLAGS = -Wall -Wextra -std=c11 -Iinclude
+COVFLAGS = -fprofile-arcs -ftest-coverage
+LDFLAGS = -lcheck -lm -lrt -lpthread -lsubunit
+
+SRC = src/string_utils.c
+SRCOBJS = $(SRC:.c=.o)
+
+TESTSRC = tests/test_string_utils.c
+TESTOBJS = $(TESTSRC:.c=.o)
+
+all: test_runner
+
+# Object files: add coverage only to src/
+src/%.o: src/%.c
+	$(CC) $(CFLAGS) $(COVFLAGS) -c $< -o $@
+
+tests/%.o: tests/%.c
+	$(CC) $(CFLAGS) -c $< -o $@
+
+test_runner: $(SRCOBJS) $(TESTOBJS)
+	$(CC) -o $@ $^ $(LDFLAGS) $(COVFLAGS)
+
+run: test_runner
+	./test_runner
+
+# Fast testing without coverage (for development)
+test: test_runner
+	./test_runner
+
+coverage: run
+	# Check if lcov is available
+	@which lcov > /dev/null || (echo "Error: lcov not found. Install with: sudo apt-get install lcov" && exit 1)
+	# Capture coverage but restrict to src/ only
+	lcov --capture --directory src --output-file coverage.info
+	genhtml coverage.info --output-directory out
+	@echo "Open out/index.html in your browser to view coverage."
+
+clean:
+	rm -f $(SRCOBJS) $(TESTOBJS) test_runner \
+	      src/*.gcno src/*.gcda tests/*.gcno tests/*.gcda \
+	      coverage.info
+	rm -rf out

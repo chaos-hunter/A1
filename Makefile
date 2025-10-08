@@ -80,9 +80,9 @@ clean:
 setup-lib:
 	@arch=$$(dpkg --print-architecture 2>/dev/null || uname -m); \
 	if [ "$$arch" = "amd64" ] || [ "$$arch" = "x86_64" ]; then \
-		cp lib/libworldgen-linux-amd64.so lib/libtree.so; \
+		cp lib/libworldgen-linux-amd64.so lib/libworldgen.so; \
 		echo "Using libworldgen-linux-amd64.so"; \
 	else \
-		cp lib/libworldgen-linux-arm64.so lib/libtree.so; \
+		cp lib/libworldgen-linux-arm64.so lib/libworldgen.so; \
 		echo "Using libworldgen-linux-arm64.so"; \
 	fi
